@@ -1,0 +1,233 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+enum Category {
+  BEAUTY
+  COMEDY
+  EDUCATION
+  FOOD
+  OTHER
+  SHOPPING
+  SPORT
+}
+
+type Comment {
+  authorUsername: String!
+  content: String!
+  createdAt: DateTime!
+  eventId: String!
+  id: String!
+  likedBy: [User!]
+  parentCommentId: String
+}
+
+input CreateCommentInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateEventInput {
+  address: String!
+
+  """
+  "SPORT" | "FOOD" | "SHOPPING" | "COMEDY" | "EDUCATION" | "BEAUTY" | "OTHER"
+  """
+  category: String!
+  city: String
+  dateFrom: DateTime!
+  dateTo: DateTime
+  description: String
+  imageUrl: String
+  latitude: Float!
+  longitude: Float!
+  private: Boolean = false
+  title: String!
+}
+
+input DateArgs {
+  field: String
+  value: DateOperators
+}
+
+input DateOperators {
+  """Greater than or equal"""
+  gte: DateTime
+
+  """Lower than"""
+  lt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type EnrollmentRequest {
+  eventId: String!
+  state: State!
+  username: String!
+}
+
+type Event {
+  address: String!
+  authorUsername: String!
+  category: Category!
+  city: String
+  comments: [Comment!]
+  createdAt: DateTime!
+  dateFrom: DateTime!
+  dateTo: DateTime
+  description: String
+  id: String!
+  imageUrl: String
+  latitude: Float!
+  longitude: Float!
+  participants: [UserEnrollEvent!]
+  private: String!
+  requests: [EnrollmentRequest!]!
+  savedBy: [UserSaveEvent!]
+  title: String!
+  updatedAt: DateTime!
+}
+
+type EventManyResponse {
+  events: [Event!]!
+  totalCount: Float!
+}
+
+input LoginUserInput {
+  password: String!
+  username: String!
+}
+
+type Mutation {
+  createComment(createCommentInput: CreateCommentInput!): Comment!
+  enrollmentRequestAcceptOne(eventId: String!, username: String!): Boolean!
+  enrollmentRequestCreateOne(eventId: String!): EnrollmentRequest!
+  enrollmentRequestDeclineOne(eventId: String!, username: String!): Boolean!
+  eventCreate(args: CreateEventInput!): Event!
+  login(loginUserInput: LoginUserInput!): User!
+  logout: Boolean!
+  register(registerUserInput: RegisterUserInput!): User!
+  removeComment(id: Int!): Comment!
+  removeEvent(id: String!): Event!
+  saveEvent(eventId: String!): Boolean!
+  unsaveEvent(eventId: String!): Boolean!
+  updateComment(updateCommentInput: UpdateCommentInput!): Comment!
+  updateEvent(args: UpdateEventInput!, id: String!): Event!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+input OrderByArgs {
+  direction: String
+  field: String
+}
+
+input PaginationArgs {
+  cursor: String
+  take: Float!
+}
+
+type Query {
+  comment(id: Int!): Comment!
+  comments: [Comment!]!
+  enrollmentRequestMany: [EnrollmentRequest!]!
+  enrollmentRequestManyAsHost(state: String): [EnrollmentRequest!]!
+  enrollmentRequestOne(eventId: String!): EnrollmentRequest
+  eventIsSaved(eventId: String!): Boolean!
+  eventMany(date: DateArgs, filters: [WhereArgs!] = [], orderBy: OrderByArgs, pagination: PaginationArgs, search: SearchArgs): EventManyResponse!
+  eventManyCities: [String!]!
+  eventManyCreated: [Event!]!
+  eventManySaved: [Event!]!
+  eventOne(id: String!): Event
+  me: User
+  user(username: String!): User!
+  users: [User!]!
+}
+
+input RegisterUserInput {
+  name: String!
+  password: String!
+  username: String!
+}
+
+input SearchArgs {
+  field: String
+  value: String
+}
+
+enum State {
+  ACCEPTED
+  DECLINED
+  PROCESSING
+}
+
+type Subscription {
+  enrollmentRequestAccepted(username: String!): EnrollmentRequest!
+  enrollmentRequestDeclined(username: String!): EnrollmentRequest!
+  enrollmentRequested(username: String!): EnrollmentRequest!
+}
+
+input UpdateCommentInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateEventInput {
+  address: String
+
+  """
+  "SPORT" | "FOOD" | "SHOPPING" | "COMEDY" | "EDUCATION" | "BEAUTY" | "OTHER"
+  """
+  category: String
+  city: String
+  dateFrom: DateTime
+  dateTo: DateTime
+  description: String
+  imageUrl: String
+  latitude: Float
+  longitude: Float
+  private: Boolean = false
+  title: String
+}
+
+input UpdateUserInput {
+  imageUrl: String
+  name: String
+  password: String
+  username: String
+}
+
+type User {
+  commentCreatedMany: [Comment!]
+  commentLikedMany: [Comment!]
+  createdAt: DateTime!
+  eventCreatedMany: [Event!]!
+  eventEnrolledMany: [UserEnrollEvent!]
+  eventRequestedMany: [EnrollmentRequest!]
+  eventSavedMany: [UserSaveEvent!]
+  followedBy: [User!]
+  following: [User!]
+  id: String!
+  imageUrl: String
+  name: String!
+  updatedAt: DateTime!
+  username: String!
+}
+
+type UserEnrollEvent {
+  eventId: String!
+  username: String!
+}
+
+type UserSaveEvent {
+  eventId: String!
+  username: String!
+}
+
+input WhereArgs {
+  field: String
+  value: String
+}

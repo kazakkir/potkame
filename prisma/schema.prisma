@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  username String  @unique
+  password String
+  name     String
+  imageUrl String?
+
+  // events
+  eventCreatedMany  Event[]           @relation("UserCreatesevent")
+  eventSavedMany    UserSaveEvent[]
+  eventEnrolledMany UserEnrollEvent[]
+
+  eventRequestedMany EnrollmentRequest[]
+
+
+  // Comments
+  commentCreatedMany Comment[] @relation("UserCreatesComment")
+  commentLikedMany   Comment[] @relation("UserLikesComment")
+
+  // Followers
+  followedBy User[] @relation("UserFollows", references: [id])
+  following  User[] @relation("UserFollows", references: [id])
+
+  @@map("users")
+}
+
+model UserSaveEvent {
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  eventId String
+
+  user     User   @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+
+  @@id([eventId, username])
+}
+
+model UserEnrollEvent {
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  eventId String
+
+  user     User   @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+
+  @@id([eventId, username])
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String?
+  private     Boolean?  @default(false)
+  longitude   Float
+  latitude    Float
+  city        String?
+  address     String
+  imageUrl    String?
+  dateFrom    DateTime
+  dateTo      DateTime?
+  category    Category  @default(OTHER)
+
+  author         User?   @relation("UserCreatesevent", fields: [authorUsername], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  authorUsername String?
+
+  savedBy UserSaveEvent[]
+
+  commentMany Comment[] @relation("eventHasComment")
+
+  requests     EnrollmentRequest[]
+  participants UserEnrollEvent[]
+  @@map("events")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  content   String
+
+  event   Event  @relation("eventHasComment", fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+
+  parentComment   Comment?  @relation("CommentHasReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  parentCommentId String?
+  replies         Comment[] @relation("CommentHasReplies")
+
+  author         User   @relation("UserCreatesComment", fields: [authorUsername], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  authorUsername String
+  likedBy        User[] @relation("UserLikesComment")
+}
+
+enum Category {
+  SPORT
+  FOOD
+  SHOPPING
+  COMEDY
+  EDUCATION
+  BEAUTY
+  OTHER
+}
+
+enum EnrollmentRequestState {
+  PROCESSING
+  DECLINED
+  ACCEPTED
+}
+
+model EnrollmentRequest {
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+
+  user     User   @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  username String
+
+  state EnrollmentRequestState @default(PROCESSING)
+
+  @@id([eventId, username])
+  @@map("enrollment_requests")
+}
